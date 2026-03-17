@@ -1,0 +1,134 @@
+import { JwtPayload } from '../../common/decorators/current-user.decorator';
+import { InventoryReportsService, ValuationMethod } from './inventory-reports.service';
+export declare class InventoryReportsController {
+    private readonly reports;
+    constructor(reports: InventoryReportsService);
+    getStockReport(user: JwtPayload): Promise<{
+        product: {
+            category: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                parentId: string | null;
+            } | null;
+        } & {
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            organizationId: string;
+            isActive: boolean;
+            description: string | null;
+            sku: string;
+            categoryId: string | null;
+            unitOfMeasure: string;
+            costPrice: import("@prisma/client/runtime/library").Decimal;
+            salePrice: import("@prisma/client/runtime/library").Decimal;
+            trackInventory: boolean;
+            reorderPoint: number;
+        };
+        warehouse: {
+            name: string;
+            id: string;
+            address: import("@prisma/client/runtime/library").JsonValue | null;
+            createdAt: Date;
+            updatedAt: Date;
+            organizationId: string;
+            isActive: boolean;
+            code: string;
+        };
+        quantity: number;
+        value: number;
+    }[]>;
+    getLowStockReport(user: JwtPayload): Promise<{
+        product: {
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            organizationId: string;
+            isActive: boolean;
+            description: string | null;
+            sku: string;
+            categoryId: string | null;
+            unitOfMeasure: string;
+            costPrice: import("@prisma/client/runtime/library").Decimal;
+            salePrice: import("@prisma/client/runtime/library").Decimal;
+            trackInventory: boolean;
+            reorderPoint: number;
+        };
+        warehouse: {
+            name: string;
+            id: string;
+            address: import("@prisma/client/runtime/library").JsonValue | null;
+            createdAt: Date;
+            updatedAt: Date;
+            organizationId: string;
+            isActive: boolean;
+            code: string;
+        };
+        currentQuantity: number;
+        reorderPoint: number;
+        deficit: number;
+    }[]>;
+    getMovementHistory(user: JwtPayload, productId?: string, startDate?: string, endDate?: string, page?: number, pageSize?: number): Promise<{
+        data: ({
+            product: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                organizationId: string;
+                isActive: boolean;
+                description: string | null;
+                sku: string;
+                categoryId: string | null;
+                unitOfMeasure: string;
+                costPrice: import("@prisma/client/runtime/library").Decimal;
+                salePrice: import("@prisma/client/runtime/library").Decimal;
+                trackInventory: boolean;
+                reorderPoint: number;
+            };
+            warehouse: {
+                name: string;
+                id: string;
+                address: import("@prisma/client/runtime/library").JsonValue | null;
+                createdAt: Date;
+                updatedAt: Date;
+                organizationId: string;
+                isActive: boolean;
+                code: string;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            type: string;
+            reference: string | null;
+            notes: string | null;
+            productId: string;
+            quantity: import("@prisma/client/runtime/library").Decimal;
+            warehouseId: string;
+            unitCost: import("@prisma/client/runtime/library").Decimal | null;
+        })[];
+        total: number;
+        page: number;
+        pageSize: number;
+        totalPages: number;
+    }>;
+    getValuation(user: JwtPayload, method?: ValuationMethod): Promise<{
+        valuations: {
+            product: {
+                id: string;
+                sku: string;
+                name: string;
+            };
+            totalQuantity: number;
+            valuationMethod: ValuationMethod;
+            unitCost: number;
+            totalValue: number;
+        }[];
+        grandTotal: number;
+        method: ValuationMethod;
+    }>;
+}
+//# sourceMappingURL=inventory-reports.controller.d.ts.map

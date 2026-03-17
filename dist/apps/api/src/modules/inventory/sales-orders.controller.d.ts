@@ -1,0 +1,281 @@
+import { JwtPayload } from '../../common/decorators/current-user.decorator';
+import { SalesOrdersService } from './sales-orders.service';
+export declare class SalesOrdersController {
+    private readonly sos;
+    constructor(sos: SalesOrdersService);
+    findAll(user: JwtPayload, status?: string, page?: number, pageSize?: number): Promise<{
+        data: ({
+            contact: {
+                id: string;
+                address: import("@prisma/client/runtime/library").JsonValue | null;
+                createdAt: Date;
+                updatedAt: Date;
+                organizationId: string;
+                email: string | null;
+                firstName: string | null;
+                lastName: string | null;
+                type: string;
+                notes: string | null;
+                company: string | null;
+                phone: string | null;
+                website: string | null;
+                tags: string[];
+                isCustomer: boolean;
+                isVendor: boolean;
+            };
+            lines: ({
+                product: {
+                    name: string;
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    organizationId: string;
+                    isActive: boolean;
+                    description: string | null;
+                    sku: string;
+                    categoryId: string | null;
+                    unitOfMeasure: string;
+                    costPrice: import("@prisma/client/runtime/library").Decimal;
+                    salePrice: import("@prisma/client/runtime/library").Decimal;
+                    trackInventory: boolean;
+                    reorderPoint: number;
+                };
+            } & {
+                id: string;
+                description: string | null;
+                total: import("@prisma/client/runtime/library").Decimal;
+                productId: string;
+                quantity: import("@prisma/client/runtime/library").Decimal;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+                salesOrderId: string;
+                fulfilled: import("@prisma/client/runtime/library").Decimal;
+            })[];
+        } & {
+            number: string;
+            id: string;
+            currency: string;
+            createdAt: Date;
+            updatedAt: Date;
+            organizationId: string;
+            date: Date;
+            status: string;
+            contactId: string;
+            notes: string | null;
+            total: import("@prisma/client/runtime/library").Decimal;
+        })[];
+        total: number;
+        page: number;
+        pageSize: number;
+        totalPages: number;
+    }>;
+    findOne(id: string, user: JwtPayload): Promise<{
+        contact: {
+            id: string;
+            address: import("@prisma/client/runtime/library").JsonValue | null;
+            createdAt: Date;
+            updatedAt: Date;
+            organizationId: string;
+            email: string | null;
+            firstName: string | null;
+            lastName: string | null;
+            type: string;
+            notes: string | null;
+            company: string | null;
+            phone: string | null;
+            website: string | null;
+            tags: string[];
+            isCustomer: boolean;
+            isVendor: boolean;
+        };
+        lines: ({
+            product: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                organizationId: string;
+                isActive: boolean;
+                description: string | null;
+                sku: string;
+                categoryId: string | null;
+                unitOfMeasure: string;
+                costPrice: import("@prisma/client/runtime/library").Decimal;
+                salePrice: import("@prisma/client/runtime/library").Decimal;
+                trackInventory: boolean;
+                reorderPoint: number;
+            };
+        } & {
+            id: string;
+            description: string | null;
+            total: import("@prisma/client/runtime/library").Decimal;
+            productId: string;
+            quantity: import("@prisma/client/runtime/library").Decimal;
+            unitPrice: import("@prisma/client/runtime/library").Decimal;
+            salesOrderId: string;
+            fulfilled: import("@prisma/client/runtime/library").Decimal;
+        })[];
+    } & {
+        number: string;
+        id: string;
+        currency: string;
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        date: Date;
+        status: string;
+        contactId: string;
+        notes: string | null;
+        total: import("@prisma/client/runtime/library").Decimal;
+    }>;
+    create(user: JwtPayload, body: {
+        contactId: string;
+        date: string;
+        currency?: string;
+        notes?: string;
+        lines: Array<{
+            productId: string;
+            description?: string;
+            quantity: number;
+            unitPrice: number;
+        }>;
+    }): Promise<{
+        contact: {
+            id: string;
+            address: import("@prisma/client/runtime/library").JsonValue | null;
+            createdAt: Date;
+            updatedAt: Date;
+            organizationId: string;
+            email: string | null;
+            firstName: string | null;
+            lastName: string | null;
+            type: string;
+            notes: string | null;
+            company: string | null;
+            phone: string | null;
+            website: string | null;
+            tags: string[];
+            isCustomer: boolean;
+            isVendor: boolean;
+        };
+        lines: ({
+            product: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                organizationId: string;
+                isActive: boolean;
+                description: string | null;
+                sku: string;
+                categoryId: string | null;
+                unitOfMeasure: string;
+                costPrice: import("@prisma/client/runtime/library").Decimal;
+                salePrice: import("@prisma/client/runtime/library").Decimal;
+                trackInventory: boolean;
+                reorderPoint: number;
+            };
+        } & {
+            id: string;
+            description: string | null;
+            total: import("@prisma/client/runtime/library").Decimal;
+            productId: string;
+            quantity: import("@prisma/client/runtime/library").Decimal;
+            unitPrice: import("@prisma/client/runtime/library").Decimal;
+            salesOrderId: string;
+            fulfilled: import("@prisma/client/runtime/library").Decimal;
+        })[];
+    } & {
+        number: string;
+        id: string;
+        currency: string;
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        date: Date;
+        status: string;
+        contactId: string;
+        notes: string | null;
+        total: import("@prisma/client/runtime/library").Decimal;
+    }>;
+    fulfill(id: string, user: JwtPayload, body: {
+        warehouseId: string;
+        fulfillments: Array<{
+            lineId: string;
+            quantity: number;
+        }>;
+    }): Promise<{
+        contact: {
+            id: string;
+            address: import("@prisma/client/runtime/library").JsonValue | null;
+            createdAt: Date;
+            updatedAt: Date;
+            organizationId: string;
+            email: string | null;
+            firstName: string | null;
+            lastName: string | null;
+            type: string;
+            notes: string | null;
+            company: string | null;
+            phone: string | null;
+            website: string | null;
+            tags: string[];
+            isCustomer: boolean;
+            isVendor: boolean;
+        };
+        lines: ({
+            product: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                organizationId: string;
+                isActive: boolean;
+                description: string | null;
+                sku: string;
+                categoryId: string | null;
+                unitOfMeasure: string;
+                costPrice: import("@prisma/client/runtime/library").Decimal;
+                salePrice: import("@prisma/client/runtime/library").Decimal;
+                trackInventory: boolean;
+                reorderPoint: number;
+            };
+        } & {
+            id: string;
+            description: string | null;
+            total: import("@prisma/client/runtime/library").Decimal;
+            productId: string;
+            quantity: import("@prisma/client/runtime/library").Decimal;
+            unitPrice: import("@prisma/client/runtime/library").Decimal;
+            salesOrderId: string;
+            fulfilled: import("@prisma/client/runtime/library").Decimal;
+        })[];
+    } & {
+        number: string;
+        id: string;
+        currency: string;
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        date: Date;
+        status: string;
+        contactId: string;
+        notes: string | null;
+        total: import("@prisma/client/runtime/library").Decimal;
+    }>;
+    updateStatus(id: string, user: JwtPayload, body: {
+        status: string;
+    }): Promise<{
+        number: string;
+        id: string;
+        currency: string;
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        date: Date;
+        status: string;
+        contactId: string;
+        notes: string | null;
+        total: import("@prisma/client/runtime/library").Decimal;
+    }>;
+}
+//# sourceMappingURL=sales-orders.controller.d.ts.map
