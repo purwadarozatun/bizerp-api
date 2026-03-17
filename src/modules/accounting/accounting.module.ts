@@ -15,6 +15,7 @@ import { ReportsService } from './reports.service';
 import { CurrencyController } from './currency.controller';
 import { CurrencyService } from './currency.service';
 import { OverdueService } from './overdue.service';
+import { PdfService } from './pdf.service';
 
 @Module({
   controllers: [
@@ -35,6 +36,7 @@ import { OverdueService } from './overdue.service';
     ReportsService,
     CurrencyService,
     OverdueService,
+    PdfService,
   ],
   exports: [AccountsService, CurrencyService, OverdueService],
 })
