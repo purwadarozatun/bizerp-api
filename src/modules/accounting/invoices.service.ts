@@ -1,9 +1,38 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaClient } from '@bis/database';
+import { PrismaClient, Invoice, InvoiceLine } from '@bis/database';
+import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class InvoicesService {
   constructor(private readonly prisma: PrismaClient) {}
+
+  /**
+   * Transform Invoice data to ensure proper serialization of dates and amounts
+   */
+  private transformInvoice(invoice: any): any {
+    return {
+      ...invoice,
+      date: invoice.date ? invoice.date.toISOString() : null,
+      dueDate: invoice.dueDate ? invoice.dueDate.toISOString() : null,
+      subtotal: invoice.subtotal ? Number(invoice.subtotal) : 0,
+      taxAmount: invoice.taxAmount ? Number(invoice.taxAmount) : 0,
+      total: invoice.total ? Number(invoice.total) : 0,
+      amountPaid: invoice.amountPaid ? Number(invoice.amountPaid) : 0,
+      exchangeRate: invoice.exchangeRate ? Number(invoice.exchangeRate) : 1,
+      lines: invoice.lines?.map((line: any) => ({
+        ...line,
+        quantity: line.quantity ? Number(line.quantity) : 0,
+        unitPrice: line.unitPrice ? Number(line.unitPrice) : 0,
+        taxRate: line.taxRate ? Number(line.taxRate) : 0,
+        total: line.total ? Number(line.total) : 0,
+      })),
+      payments: invoice.payments?.map((payment: any) => ({
+        ...payment,
+        date: payment.date ? payment.date.toISOString() : null,
+        amount: payment.amount ? Number(payment.amount) : 0,
+      })),
+    };
+  }
 
   async findAll(organizationId: string, status?: string, page = 1, pageSize = 25) {
     const where = { organizationId, ...(status ? { status } : {}) };
@@ -20,7 +49,13 @@ export class InvoicesService {
       }),
       this.prisma.invoice.count({ where }),
     ]);
-    return { data, total, page: p, pageSize: ps, totalPages: Math.ceil(total / ps) };
+    return {
+      data: data.map(invoice => this.transformInvoice(invoice)),
+      total,
+      page: p,
+      pageSize: ps,
+      totalPages: Math.ceil(total / ps)
+    };
   }
 
   async findOne(id: string, organizationId: string) {
@@ -29,7 +64,7 @@ export class InvoicesService {
       include: { contact: true, lines: { include: { account: true, product: true } }, payments: true },
     });
     if (!invoice) throw new NotFoundException(`Invoice ${id} not found`);
-    return invoice;
+    return this.transformInvoice(invoice);
   }
 
   async create(organizationId: string, data: {
@@ -52,7 +87,7 @@ export class InvoicesService {
     const taxAmount = lines.reduce((s, l) => s + l.quantity * l.unitPrice * l.taxRate, 0);
     const total = subtotal + taxAmount;
 
-    return this.prisma.invoice.create({
+    const invoice = await this.prisma.invoice.create({
       data: {
         organizationId,
         number,
@@ -68,10 +103,16 @@ export class InvoicesService {
       },
       include: { contact: true, lines: true },
     });
+    return this.transformInvoice(invoice);
   }
 
   async updateStatus(id: string, organizationId: string, status: string) {
     await this.findOne(id, organizationId);
-    return this.prisma.invoice.update({ where: { id }, data: { status } });
+    const invoice = await this.prisma.invoice.update({
+      where: { id },
+      data: { status },
+      include: { contact: true, lines: true },
+    });
+    return this.transformInvoice(invoice);
   }
 }
