@@ -5,6 +5,11 @@ export interface EmailOptions {
     subject: string;
     text?: string;
     html?: string;
+    attachments?: Array<{
+        filename: string;
+        content: Buffer;
+        contentType?: string;
+    }>;
 }
 export declare class EmailService {
     private readonly config;

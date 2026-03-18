@@ -23,17 +23,36 @@ let JournalsController = class JournalsController {
     constructor(journals) {
         this.journals = journals;
     }
-    findAll(user, page, pageSize) {
-        return this.journals.findAll(user.organizationId, page, pageSize);
+    findAll(user, referenceId, referenceType, page, pageSize) {
+        return this.journals.findAll(user.organizationId, referenceId, referenceType, page ? +page : 1, pageSize ? +pageSize : 25);
+    }
+    findOne(id, user) {
+        return this.journals.findOne(id, user.organizationId);
     }
     create(user, body) {
-        return this.journals.create(user.organizationId, { ...body, date: new Date(body.date) });
+        return this.journals.create(user.organizationId, {
+            ...body,
+            date: new Date(body.date),
+            createdByUserId: user.sub,
+        });
+    }
+    update(id, user, body) {
+        return this.journals.update(id, user.organizationId, {
+            ...body,
+            date: body.date ? new Date(body.date) : undefined,
+        });
     }
     post(id, user) {
         return this.journals.post(id, user.organizationId);
     }
-    void(id, user) {
-        return this.journals.void(id, user.organizationId);
+    void(id, user, body) {
+        return this.journals.void(id, user.organizationId, body.reason);
+    }
+    delete(id, user) {
+        return this.journals.delete(id, user.organizationId);
+    }
+    createReversal(id, user) {
+        return this.journals.createReversal(id, user.organizationId, user.sub);
     }
 };
 exports.JournalsController = JournalsController;
@@ -41,12 +60,23 @@ __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'List journal entries' }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
-    __param(1, (0, common_1.Query)('page')),
-    __param(2, (0, common_1.Query)('pageSize')),
+    __param(1, (0, common_1.Query)('referenceId')),
+    __param(2, (0, common_1.Query)('referenceType')),
+    __param(3, (0, common_1.Query)('page')),
+    __param(4, (0, common_1.Query)('pageSize')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Number, Number]),
+    __metadata("design:paramtypes", [Object, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], JournalsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get a journal entry' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], JournalsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Create a journal entry' }),
@@ -57,7 +87,17 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], JournalsController.prototype, "create", null);
 __decorate([
-    (0, common_1.Patch)(':id/post'),
+    (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update a draft journal entry' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", void 0)
+], JournalsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Post)(':id/post'),
     (0, swagger_1.ApiOperation)({ summary: 'Post a draft journal entry' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
@@ -66,14 +106,33 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], JournalsController.prototype, "post", null);
 __decorate([
-    (0, common_1.Patch)(':id/void'),
+    (0, common_1.Post)(':id/void'),
     (0, swagger_1.ApiOperation)({ summary: 'Void a journal entry' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", void 0)
+], JournalsController.prototype, "void", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a draft journal entry' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
-], JournalsController.prototype, "void", null);
+], JournalsController.prototype, "delete", null);
+__decorate([
+    (0, common_1.Post)(':id/reversal'),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a reversal entry for a posted journal entry' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], JournalsController.prototype, "createReversal", null);
 exports.JournalsController = JournalsController = __decorate([
     (0, swagger_1.ApiTags)('accounting/journals'),
     (0, swagger_1.ApiBearerAuth)(),

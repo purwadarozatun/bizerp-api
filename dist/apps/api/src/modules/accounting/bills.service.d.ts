@@ -1,8 +1,12 @@
 import { PrismaClient } from '@bis/database';
+import { BillExpenseService } from './bill-expense.service';
+import { AutoJournalService } from './auto-journal.service';
 export declare class BillsService {
     private readonly prisma;
-    constructor(prisma: PrismaClient);
-    findAll(organizationId: string, status?: string, page?: number, pageSize?: number): Promise<{
+    private readonly billExpense;
+    private readonly autoJournal;
+    constructor(prisma: PrismaClient, billExpense: BillExpenseService, autoJournal: AutoJournalService);
+    findAll(organizationId: string, status?: string, vendor?: string, dateFrom?: string, dateTo?: string, page?: number, pageSize?: number, sortBy?: string, sortDir?: string): Promise<{
         data: ({
             contact: {
                 id: string;
@@ -22,17 +26,20 @@ export declare class BillsService {
                 isCustomer: boolean;
                 isVendor: boolean;
             };
+            _count: {
+                attachments: number;
+            };
             lines: {
                 id: string;
                 createdAt: Date;
                 description: string;
                 total: import("@prisma/client/runtime/library").Decimal;
+                billId: string;
                 accountId: string | null;
                 productId: string | null;
                 quantity: import("@prisma/client/runtime/library").Decimal;
                 unitPrice: import("@prisma/client/runtime/library").Decimal;
                 taxRate: import("@prisma/client/runtime/library").Decimal;
-                billId: string;
             }[];
         } & {
             number: string;
@@ -51,6 +58,16 @@ export declare class BillsService {
             taxAmount: import("@prisma/client/runtime/library").Decimal;
             total: import("@prisma/client/runtime/library").Decimal;
             amountPaid: import("@prisma/client/runtime/library").Decimal;
+            expenseCategory: string | null;
+            referenceNo: string | null;
+            rejectionReason: string | null;
+            paidAt: Date | null;
+            paidMethod: string | null;
+            paidReference: string | null;
+            paidNotes: string | null;
+            approvedAt: Date | null;
+            approvedById: string | null;
+            submittedAt: Date | null;
         })[];
         total: number;
         page: number;
@@ -81,12 +98,12 @@ export declare class BillsService {
             createdAt: Date;
             description: string;
             total: import("@prisma/client/runtime/library").Decimal;
+            billId: string;
             accountId: string | null;
             productId: string | null;
             quantity: import("@prisma/client/runtime/library").Decimal;
             unitPrice: import("@prisma/client/runtime/library").Decimal;
             taxRate: import("@prisma/client/runtime/library").Decimal;
-            billId: string;
         }[];
         payments: {
             id: string;
@@ -95,10 +112,29 @@ export declare class BillsService {
             date: Date;
             reference: string | null;
             notes: string | null;
-            invoiceId: string | null;
             billId: string | null;
             amount: import("@prisma/client/runtime/library").Decimal;
+            invoiceId: string | null;
             method: string;
+        }[];
+        attachments: {
+            id: string;
+            createdAt: Date;
+            billId: string;
+            filename: string;
+            fileSize: number;
+            mimeType: string;
+            storagePath: string;
+        }[];
+        statusLogs: {
+            id: string;
+            createdAt: Date;
+            billId: string;
+            note: string | null;
+            fromStatus: string | null;
+            toStatus: string;
+            actorId: string | null;
+            actorType: string | null;
         }[];
     } & {
         number: string;
@@ -117,12 +153,24 @@ export declare class BillsService {
         taxAmount: import("@prisma/client/runtime/library").Decimal;
         total: import("@prisma/client/runtime/library").Decimal;
         amountPaid: import("@prisma/client/runtime/library").Decimal;
+        expenseCategory: string | null;
+        referenceNo: string | null;
+        rejectionReason: string | null;
+        paidAt: Date | null;
+        paidMethod: string | null;
+        paidReference: string | null;
+        paidNotes: string | null;
+        approvedAt: Date | null;
+        approvedById: string | null;
+        submittedAt: Date | null;
     }>;
     create(organizationId: string, data: {
         contactId: string;
         date: Date;
         dueDate: Date;
         currency?: string;
+        expenseCategory?: string;
+        referenceNo?: string;
         notes?: string;
         lines: Array<{
             accountId?: string;
@@ -155,12 +203,12 @@ export declare class BillsService {
             createdAt: Date;
             description: string;
             total: import("@prisma/client/runtime/library").Decimal;
+            billId: string;
             accountId: string | null;
             productId: string | null;
             quantity: import("@prisma/client/runtime/library").Decimal;
             unitPrice: import("@prisma/client/runtime/library").Decimal;
             taxRate: import("@prisma/client/runtime/library").Decimal;
-            billId: string;
         }[];
     } & {
         number: string;
@@ -179,6 +227,235 @@ export declare class BillsService {
         taxAmount: import("@prisma/client/runtime/library").Decimal;
         total: import("@prisma/client/runtime/library").Decimal;
         amountPaid: import("@prisma/client/runtime/library").Decimal;
+        expenseCategory: string | null;
+        referenceNo: string | null;
+        rejectionReason: string | null;
+        paidAt: Date | null;
+        paidMethod: string | null;
+        paidReference: string | null;
+        paidNotes: string | null;
+        approvedAt: Date | null;
+        approvedById: string | null;
+        submittedAt: Date | null;
+    }>;
+    update(id: string, organizationId: string, data: {
+        contactId?: string;
+        date?: Date;
+        dueDate?: Date;
+        currency?: string;
+        expenseCategory?: string;
+        referenceNo?: string;
+        notes?: string;
+        lines?: Array<{
+            accountId?: string;
+            description: string;
+            quantity: number;
+            unitPrice: number;
+            taxRate?: number;
+        }>;
+    }): Promise<{
+        contact: {
+            id: string;
+            address: import("@prisma/client/runtime/library").JsonValue | null;
+            createdAt: Date;
+            updatedAt: Date;
+            organizationId: string;
+            email: string | null;
+            firstName: string | null;
+            lastName: string | null;
+            type: string;
+            notes: string | null;
+            company: string | null;
+            phone: string | null;
+            website: string | null;
+            tags: string[];
+            isCustomer: boolean;
+            isVendor: boolean;
+        };
+        lines: {
+            id: string;
+            createdAt: Date;
+            description: string;
+            total: import("@prisma/client/runtime/library").Decimal;
+            billId: string;
+            accountId: string | null;
+            productId: string | null;
+            quantity: import("@prisma/client/runtime/library").Decimal;
+            unitPrice: import("@prisma/client/runtime/library").Decimal;
+            taxRate: import("@prisma/client/runtime/library").Decimal;
+        }[];
+    } & {
+        number: string;
+        id: string;
+        currency: string;
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        date: Date;
+        status: string;
+        exchangeRate: import("@prisma/client/runtime/library").Decimal;
+        contactId: string;
+        dueDate: Date;
+        notes: string | null;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        taxAmount: import("@prisma/client/runtime/library").Decimal;
+        total: import("@prisma/client/runtime/library").Decimal;
+        amountPaid: import("@prisma/client/runtime/library").Decimal;
+        expenseCategory: string | null;
+        referenceNo: string | null;
+        rejectionReason: string | null;
+        paidAt: Date | null;
+        paidMethod: string | null;
+        paidReference: string | null;
+        paidNotes: string | null;
+        approvedAt: Date | null;
+        approvedById: string | null;
+        submittedAt: Date | null;
+    }>;
+    submitForApproval(id: string, organizationId: string, actorId?: string): Promise<{
+        number: string;
+        id: string;
+        currency: string;
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        date: Date;
+        status: string;
+        exchangeRate: import("@prisma/client/runtime/library").Decimal;
+        contactId: string;
+        dueDate: Date;
+        notes: string | null;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        taxAmount: import("@prisma/client/runtime/library").Decimal;
+        total: import("@prisma/client/runtime/library").Decimal;
+        amountPaid: import("@prisma/client/runtime/library").Decimal;
+        expenseCategory: string | null;
+        referenceNo: string | null;
+        rejectionReason: string | null;
+        paidAt: Date | null;
+        paidMethod: string | null;
+        paidReference: string | null;
+        paidNotes: string | null;
+        approvedAt: Date | null;
+        approvedById: string | null;
+        submittedAt: Date | null;
+    }>;
+    approve(id: string, organizationId: string, actorId?: string): Promise<{
+        number: string;
+        id: string;
+        currency: string;
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        date: Date;
+        status: string;
+        exchangeRate: import("@prisma/client/runtime/library").Decimal;
+        contactId: string;
+        dueDate: Date;
+        notes: string | null;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        taxAmount: import("@prisma/client/runtime/library").Decimal;
+        total: import("@prisma/client/runtime/library").Decimal;
+        amountPaid: import("@prisma/client/runtime/library").Decimal;
+        expenseCategory: string | null;
+        referenceNo: string | null;
+        rejectionReason: string | null;
+        paidAt: Date | null;
+        paidMethod: string | null;
+        paidReference: string | null;
+        paidNotes: string | null;
+        approvedAt: Date | null;
+        approvedById: string | null;
+        submittedAt: Date | null;
+    }>;
+    reject(id: string, organizationId: string, reason: string, actorId?: string): Promise<{
+        number: string;
+        id: string;
+        currency: string;
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        date: Date;
+        status: string;
+        exchangeRate: import("@prisma/client/runtime/library").Decimal;
+        contactId: string;
+        dueDate: Date;
+        notes: string | null;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        taxAmount: import("@prisma/client/runtime/library").Decimal;
+        total: import("@prisma/client/runtime/library").Decimal;
+        amountPaid: import("@prisma/client/runtime/library").Decimal;
+        expenseCategory: string | null;
+        referenceNo: string | null;
+        rejectionReason: string | null;
+        paidAt: Date | null;
+        paidMethod: string | null;
+        paidReference: string | null;
+        paidNotes: string | null;
+        approvedAt: Date | null;
+        approvedById: string | null;
+        submittedAt: Date | null;
+    }>;
+    markAsPaid(id: string, organizationId: string, payment: {
+        paymentDate: Date;
+        paymentMethod: string;
+        reference?: string;
+        notes?: string;
+    }, actorId?: string): Promise<{
+        number: string;
+        id: string;
+        currency: string;
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        date: Date;
+        status: string;
+        exchangeRate: import("@prisma/client/runtime/library").Decimal;
+        contactId: string;
+        dueDate: Date;
+        notes: string | null;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        taxAmount: import("@prisma/client/runtime/library").Decimal;
+        total: import("@prisma/client/runtime/library").Decimal;
+        amountPaid: import("@prisma/client/runtime/library").Decimal;
+        expenseCategory: string | null;
+        referenceNo: string | null;
+        rejectionReason: string | null;
+        paidAt: Date | null;
+        paidMethod: string | null;
+        paidReference: string | null;
+        paidNotes: string | null;
+        approvedAt: Date | null;
+        approvedById: string | null;
+        submittedAt: Date | null;
+    }>;
+    delete(id: string, organizationId: string): Promise<{
+        number: string;
+        id: string;
+        currency: string;
+        createdAt: Date;
+        updatedAt: Date;
+        organizationId: string;
+        date: Date;
+        status: string;
+        exchangeRate: import("@prisma/client/runtime/library").Decimal;
+        contactId: string;
+        dueDate: Date;
+        notes: string | null;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        taxAmount: import("@prisma/client/runtime/library").Decimal;
+        total: import("@prisma/client/runtime/library").Decimal;
+        amountPaid: import("@prisma/client/runtime/library").Decimal;
+        expenseCategory: string | null;
+        referenceNo: string | null;
+        rejectionReason: string | null;
+        paidAt: Date | null;
+        paidMethod: string | null;
+        paidReference: string | null;
+        paidNotes: string | null;
+        approvedAt: Date | null;
+        approvedById: string | null;
+        submittedAt: Date | null;
     }>;
     updateStatus(id: string, organizationId: string, status: string): Promise<{
         number: string;
@@ -197,6 +474,17 @@ export declare class BillsService {
         taxAmount: import("@prisma/client/runtime/library").Decimal;
         total: import("@prisma/client/runtime/library").Decimal;
         amountPaid: import("@prisma/client/runtime/library").Decimal;
+        expenseCategory: string | null;
+        referenceNo: string | null;
+        rejectionReason: string | null;
+        paidAt: Date | null;
+        paidMethod: string | null;
+        paidReference: string | null;
+        paidNotes: string | null;
+        approvedAt: Date | null;
+        approvedById: string | null;
+        submittedAt: Date | null;
     }>;
+    private validateTransition;
 }
 //# sourceMappingURL=bills.service.d.ts.map

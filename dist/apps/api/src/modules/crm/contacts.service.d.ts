@@ -32,10 +32,10 @@ export declare class ContactsService {
             createdAt: Date;
             updatedAt: Date;
             status: string;
+            source: string | null;
             contactId: string;
             notes: string | null;
             title: string;
-            source: string | null;
             value: import("@prisma/client/runtime/library").Decimal | null;
         }[];
         opportunities: {
@@ -58,8 +58,8 @@ export declare class ContactsService {
             description: string | null;
             contactId: string;
             dueDate: Date | null;
-            subject: string;
             completedAt: Date | null;
+            subject: string;
         }[];
     } & {
         id: string;
@@ -148,8 +148,8 @@ export declare class ContactsService {
         description: string | null;
         contactId: string;
         dueDate: Date | null;
-        subject: string;
         completedAt: Date | null;
+        subject: string;
     }>;
 }
 //# sourceMappingURL=contacts.service.d.ts.map

@@ -18,11 +18,31 @@ let AccountsService = class AccountsService {
         this.prisma = prisma;
     }
     async findAll(organizationId) {
-        const data = await this.prisma.account.findMany({
-            where: { organizationId, isActive: true },
-            include: { children: true },
-            orderBy: { code: 'asc' },
-        });
+        const [accounts, balanceRows] = await Promise.all([
+            this.prisma.account.findMany({
+                where: { organizationId, isActive: true },
+                include: { children: true },
+                orderBy: { code: 'asc' },
+            }),
+            this.prisma.journalLine.groupBy({
+                by: ['accountId'],
+                where: {
+                    account: { organizationId },
+                    journalEntry: { status: 'posted' },
+                },
+                _sum: { debit: true, credit: true },
+            }),
+        ]);
+        const balanceMap = new Map();
+        for (const row of balanceRows) {
+            const debit = Number(row._sum.debit ?? 0);
+            const credit = Number(row._sum.credit ?? 0);
+            balanceMap.set(row.accountId, debit - credit);
+        }
+        const data = accounts.map((a) => ({
+            ...a,
+            balance: balanceMap.get(a.id) ?? 0,
+        }));
         return { data, total: data.length };
     }
     async findOne(id, organizationId) {
@@ -53,7 +73,16 @@ let AccountsService = class AccountsService {
         });
         const balances = new Map();
         for (const line of lines) {
-            const existing = balances.get(line.accountId) ?? { account: { id: line.account.id, code: line.account.code, name: line.account.name, type: line.account.type }, debit: 0, credit: 0 };
+            const existing = balances.get(line.accountId) ?? {
+                account: {
+                    id: line.account.id,
+                    code: line.account.code,
+                    name: line.account.name,
+                    type: line.account.type,
+                },
+                debit: 0,
+                credit: 0,
+            };
             existing.debit += Number(line.debit);
             existing.credit += Number(line.credit);
             balances.set(line.accountId, existing);

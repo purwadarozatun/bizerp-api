@@ -1,10 +1,36 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaClient, Invoice, InvoiceLine } from '@bis/database';
 import { Decimal } from '@prisma/client/runtime/library';
+import { AutoJournalService } from './auto-journal.service';
 
 @Injectable()
 export class InvoicesService {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(
+    private readonly prisma: PrismaClient,
+    private readonly autoJournal: AutoJournalService,
+  ) {}
+
+  /**
+   * Valid invoice status transitions (state machine)
+   */
+  private readonly VALID_TRANSITIONS: Record<string, string[]> = {
+    draft: ['created', 'sent', 'voided'],
+    created: ['sent', 'voided'],
+    sent: ['partial', 'paid', 'overdue', 'voided'],
+    partial: ['paid', 'overdue', 'voided'],
+    overdue: ['partial', 'paid', 'voided'],
+    paid: ['voided'],
+    voided: [],
+  };
+
+  /**
+   * Validate if a status transition is allowed
+   */
+  private isValidTransition(fromStatus: string, toStatus: string): boolean {
+    const allowedTransitions = this.VALID_TRANSITIONS[fromStatus];
+    if (!allowedTransitions) return false;
+    return allowedTransitions.includes(toStatus);
+  }
 
   /**
    * Transform Invoice data to ensure proper serialization of dates and amounts
@@ -50,35 +76,49 @@ export class InvoicesService {
       this.prisma.invoice.count({ where }),
     ]);
     return {
-      data: data.map(invoice => this.transformInvoice(invoice)),
+      data: data.map((invoice) => this.transformInvoice(invoice)),
       total,
       page: p,
       pageSize: ps,
-      totalPages: Math.ceil(total / ps)
+      totalPages: Math.ceil(total / ps),
     };
   }
 
   async findOne(id: string, organizationId: string) {
     const invoice = await this.prisma.invoice.findFirst({
       where: { id, organizationId },
-      include: { contact: true, lines: { include: { account: true, product: true } }, payments: true },
+      include: {
+        contact: true,
+        lines: { include: { account: true, product: true } },
+        payments: true,
+      },
     });
     if (!invoice) throw new NotFoundException(`Invoice ${id} not found`);
     return this.transformInvoice(invoice);
   }
 
-  async create(organizationId: string, data: {
-    contactId: string;
-    date: Date;
-    dueDate: Date;
-    currency?: string;
-    notes?: string;
-    lines: Array<{ accountId?: string; productId?: string; description: string; quantity: number; unitPrice: number; taxRate?: number }>;
-  }) {
+  async create(
+    organizationId: string,
+    data: {
+      contactId: string;
+      date: Date;
+      dueDate: Date;
+      currency?: string;
+      notes?: string;
+      lines: Array<{
+        accountId?: string;
+        productId?: string;
+        description: string;
+        quantity: number;
+        unitPrice: number;
+        taxRate?: number;
+      }>;
+    },
+  ) {
     const count = await this.prisma.invoice.count({ where: { organizationId } });
     const number = `INV-${String(count + 1).padStart(6, '0')}`;
 
-    const lines = data.lines.map(l => ({
+    const lines = data.lines.map((l) => ({
       ...l,
       taxRate: l.taxRate || 0,
       total: l.quantity * l.unitPrice * (1 + (l.taxRate || 0)),
@@ -106,13 +146,44 @@ export class InvoicesService {
     return this.transformInvoice(invoice);
   }
 
-  async updateStatus(id: string, organizationId: string, status: string) {
-    await this.findOne(id, organizationId);
-    const invoice = await this.prisma.invoice.update({
-      where: { id },
-      data: { status },
-      include: { contact: true, lines: true },
+  async updateStatus(id: string, organizationId: string, status: string, userId?: string) {
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id, organizationId },
     });
-    return this.transformInvoice(invoice);
+
+    if (!invoice) throw new NotFoundException(`Invoice ${id} not found`);
+
+    // Validate status transition
+    if (invoice.status !== status && !this.isValidTransition(invoice.status, status)) {
+      throw new BadRequestException(
+        `Invalid status transition: cannot change from "${invoice.status}" to "${status}"`,
+      );
+    }
+
+    // Update invoice status and log the change in a transaction
+    const [updatedInvoice] = await this.prisma.$transaction([
+      this.prisma.invoice.update({
+        where: { id },
+        data: { status },
+        include: { contact: true, lines: true },
+      }),
+      this.prisma.invoiceAuditLog.create({
+        data: {
+          invoiceId: id,
+          fromStatus: invoice.status,
+          toStatus: status,
+          changedByUserId: userId,
+        },
+      }),
+    ]);
+
+    // Trigger auto-journal for the status transition (fire-and-forget; errors are non-fatal)
+    this.autoJournal
+      .onInvoiceStatusChange(id, organizationId, invoice.status, status, userId)
+      .catch(() => {
+        // Auto-journal failures are logged but do not roll back the status update
+      });
+
+    return this.transformInvoice(updatedInvoice);
   }
 }

@@ -16,7 +16,10 @@ exports.PaystubController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
+const permissions_guard_1 = require("../../common/guards/permissions.guard");
+const require_permission_decorator_1 = require("../../common/decorators/require-permission.decorator");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
+const permissions_1 = require("../../common/permissions");
 const paystub_service_1 = require("./paystub.service");
 let PaystubController = class PaystubController {
     paystubs;
@@ -70,7 +73,8 @@ __decorate([
 exports.PaystubController = PaystubController = __decorate([
     (0, swagger_1.ApiTags)('hr/paystubs'),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, permissions_guard_1.PermissionsGuard),
+    (0, require_permission_decorator_1.RequirePermission)(permissions_1.PERMISSIONS.PAYROLL, 'read'),
     (0, common_1.Controller)('hr/paystubs'),
     __metadata("design:paramtypes", [paystub_service_1.PaystubService])
 ], PaystubController);

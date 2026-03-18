@@ -8,6 +8,11 @@ export interface EmailOptions {
   subject: string;
   text?: string;
   html?: string;
+  attachments?: Array<{
+    filename: string;
+    content: Buffer;
+    contentType?: string;
+  }>;
 }
 
 @Injectable()
@@ -43,6 +48,7 @@ export class EmailService {
       subject: options.subject,
       text: options.text,
       html: options.html,
+      attachments: options.attachments,
     });
 
     return { messageId: info.messageId, accepted: info.accepted, rejected: info.rejected };

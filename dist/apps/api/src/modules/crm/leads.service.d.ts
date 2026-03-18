@@ -27,10 +27,10 @@ export declare class LeadsService {
             createdAt: Date;
             updatedAt: Date;
             status: string;
+            source: string | null;
             contactId: string;
             notes: string | null;
             title: string;
-            source: string | null;
             value: import("@prisma/client/runtime/library").Decimal | null;
         })[];
         total: number;
@@ -62,10 +62,10 @@ export declare class LeadsService {
         createdAt: Date;
         updatedAt: Date;
         status: string;
+        source: string | null;
         contactId: string;
         notes: string | null;
         title: string;
-        source: string | null;
         value: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     create(data: {
@@ -98,10 +98,10 @@ export declare class LeadsService {
         createdAt: Date;
         updatedAt: Date;
         status: string;
+        source: string | null;
         contactId: string;
         notes: string | null;
         title: string;
-        source: string | null;
         value: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     update(id: string, data: Partial<{
@@ -134,10 +134,10 @@ export declare class LeadsService {
         createdAt: Date;
         updatedAt: Date;
         status: string;
+        source: string | null;
         contactId: string;
         notes: string | null;
         title: string;
-        source: string | null;
         value: import("@prisma/client/runtime/library").Decimal | null;
     }>;
     convertToOpportunity(id: string): Promise<{

@@ -18,9 +18,9 @@ export declare class PaymentsController {
         date: Date;
         reference: string | null;
         notes: string | null;
-        invoiceId: string | null;
         billId: string | null;
         amount: import("@prisma/client/runtime/library").Decimal;
+        invoiceId: string | null;
         method: string;
     }>;
     getInvoicePayments(id: string, user: JwtPayload): Promise<{
@@ -30,9 +30,9 @@ export declare class PaymentsController {
         date: Date;
         reference: string | null;
         notes: string | null;
-        invoiceId: string | null;
         billId: string | null;
         amount: import("@prisma/client/runtime/library").Decimal;
+        invoiceId: string | null;
         method: string;
     }[]>;
     payBill(id: string, user: JwtPayload, body: PaymentBody): Promise<{
@@ -42,9 +42,9 @@ export declare class PaymentsController {
         date: Date;
         reference: string | null;
         notes: string | null;
-        invoiceId: string | null;
         billId: string | null;
         amount: import("@prisma/client/runtime/library").Decimal;
+        invoiceId: string | null;
         method: string;
     }>;
     getBillPayments(id: string, user: JwtPayload): Promise<{
@@ -54,9 +54,9 @@ export declare class PaymentsController {
         date: Date;
         reference: string | null;
         notes: string | null;
-        invoiceId: string | null;
         billId: string | null;
         amount: import("@prisma/client/runtime/library").Decimal;
+        invoiceId: string | null;
         method: string;
     }[]>;
 }

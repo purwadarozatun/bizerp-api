@@ -17,9 +17,9 @@ export declare class PaymentsService {
         date: Date;
         reference: string | null;
         notes: string | null;
-        invoiceId: string | null;
         billId: string | null;
         amount: import("@prisma/client/runtime/library").Decimal;
+        invoiceId: string | null;
         method: string;
     }>;
     payBill(billId: string, organizationId: string, dto: RecordPaymentDto): Promise<{
@@ -29,9 +29,9 @@ export declare class PaymentsService {
         date: Date;
         reference: string | null;
         notes: string | null;
-        invoiceId: string | null;
         billId: string | null;
         amount: import("@prisma/client/runtime/library").Decimal;
+        invoiceId: string | null;
         method: string;
     }>;
     getInvoicePayments(invoiceId: string, organizationId: string): Promise<{
@@ -41,9 +41,9 @@ export declare class PaymentsService {
         date: Date;
         reference: string | null;
         notes: string | null;
-        invoiceId: string | null;
         billId: string | null;
         amount: import("@prisma/client/runtime/library").Decimal;
+        invoiceId: string | null;
         method: string;
     }[]>;
     getBillPayments(billId: string, organizationId: string): Promise<{
@@ -53,9 +53,9 @@ export declare class PaymentsService {
         date: Date;
         reference: string | null;
         notes: string | null;
-        invoiceId: string | null;
         billId: string | null;
         amount: import("@prisma/client/runtime/library").Decimal;
+        invoiceId: string | null;
         method: string;
     }[]>;
 }

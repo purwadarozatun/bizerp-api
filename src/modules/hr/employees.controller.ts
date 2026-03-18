@@ -2,18 +2,26 @@ import { Controller, Get, Post, Patch, Param, Body, Query, UseGuards } from '@ne
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
+import { RequirePermission } from '../../common/decorators/require-permission.decorator';
 import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
+import { PERMISSIONS } from '../../common/permissions';
 import { EmployeesService } from './employees.service';
 
 @ApiTags('hr/employees')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermission(PERMISSIONS.EMPLOYEE_DATA, 'read')
 @Controller('hr/employees')
 export class EmployeesController {
   constructor(private readonly employees: EmployeesService) {}
 
   @Get()
-  findAll(@CurrentUser() user: JwtPayload, @Query('search') search?: string, @Query('page') page?: number) {
+  findAll(
+    @CurrentUser() user: JwtPayload,
+    @Query('search') search?: string,
+    @Query('page') page?: number,
+  ) {
     return this.employees.findAll(user.organizationId, search, page);
   }
 
@@ -28,8 +36,34 @@ export class EmployeesController {
   }
 
   @Post()
-  create(@CurrentUser() user: JwtPayload, @Body() body: { employeeNumber?: string; firstName: string; lastName: string; email: string; hireDate: string; jobTitle?: string; position?: string; department?: string; employmentType: string; baseSalary?: number; salary?: number; payPeriod?: string }) {
-    const { position, salary, jobTitle: jt, baseSalary: bs, employeeNumber: en, hireDate, ...rest } = body;
+  @RequirePermission(PERMISSIONS.EMPLOYEE_DATA, 'full')
+  create(
+    @CurrentUser() user: JwtPayload,
+    @Body()
+    body: {
+      employeeNumber?: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      hireDate: string;
+      jobTitle?: string;
+      position?: string;
+      department?: string;
+      employmentType: string;
+      baseSalary?: number;
+      salary?: number;
+      payPeriod?: string;
+    },
+  ) {
+    const {
+      position,
+      salary,
+      jobTitle: jt,
+      baseSalary: bs,
+      employeeNumber: en,
+      hireDate,
+      ...rest
+    } = body;
     return this.employees.create(user.organizationId, {
       ...rest,
       jobTitle: jt ?? position ?? '',
@@ -40,7 +74,20 @@ export class EmployeesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @CurrentUser() user: JwtPayload, @Body() body: { firstName?: string; lastName?: string; jobTitle?: string; department?: string; baseSalary?: number; status?: string }) {
+  @RequirePermission(PERMISSIONS.EMPLOYEE_DATA, 'full')
+  update(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+    @Body()
+    body: {
+      firstName?: string;
+      lastName?: string;
+      jobTitle?: string;
+      department?: string;
+      baseSalary?: number;
+      status?: string;
+    },
+  ) {
     return this.employees.update(id, user.organizationId, body);
   }
 }

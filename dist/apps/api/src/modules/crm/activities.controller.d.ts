@@ -31,8 +31,8 @@ export declare class ActivitiesController {
             description: string | null;
             contactId: string;
             dueDate: Date | null;
-            subject: string;
             completedAt: Date | null;
+            subject: string;
         })[];
         total: number;
         page: number;
@@ -50,8 +50,8 @@ export declare class ActivitiesController {
             description: string | null;
             contactId: string;
             dueDate: Date | null;
-            subject: string;
             completedAt: Date | null;
+            subject: string;
         };
     } | {
         type: string;
@@ -61,10 +61,10 @@ export declare class ActivitiesController {
             createdAt: Date;
             updatedAt: Date;
             status: string;
+            source: string | null;
             contactId: string;
             notes: string | null;
             title: string;
-            source: string | null;
             value: import("@prisma/client/runtime/library").Decimal | null;
         };
     } | {
@@ -110,8 +110,8 @@ export declare class ActivitiesController {
         description: string | null;
         contactId: string;
         dueDate: Date | null;
-        subject: string;
         completedAt: Date | null;
+        subject: string;
     }>;
     create(body: {
         contactId: string;
@@ -146,8 +146,8 @@ export declare class ActivitiesController {
         description: string | null;
         contactId: string;
         dueDate: Date | null;
-        subject: string;
         completedAt: Date | null;
+        subject: string;
     }>;
     update(id: string, body: {
         type?: string;
@@ -162,8 +162,8 @@ export declare class ActivitiesController {
         description: string | null;
         contactId: string;
         dueDate: Date | null;
-        subject: string;
         completedAt: Date | null;
+        subject: string;
     }>;
     complete(id: string): Promise<{
         id: string;
@@ -173,8 +173,8 @@ export declare class ActivitiesController {
         description: string | null;
         contactId: string;
         dueDate: Date | null;
-        subject: string;
         completedAt: Date | null;
+        subject: string;
     }>;
 }
 //# sourceMappingURL=activities.controller.d.ts.map

@@ -3,7 +3,8 @@ export declare class AccountsService {
     private readonly prisma;
     constructor(prisma: PrismaClient);
     findAll(organizationId: string): Promise<{
-        data: ({
+        data: {
+            balance: number;
             children: {
                 name: string;
                 id: string;
@@ -17,8 +18,8 @@ export declare class AccountsService {
                 subtype: string | null;
                 description: string | null;
                 parentId: string | null;
+                isSystemAccount: boolean;
             }[];
-        } & {
             name: string;
             id: string;
             currency: string;
@@ -31,7 +32,8 @@ export declare class AccountsService {
             subtype: string | null;
             description: string | null;
             parentId: string | null;
-        })[];
+            isSystemAccount: boolean;
+        }[];
         total: number;
     }>;
     findOne(id: string, organizationId: string): Promise<{
@@ -48,6 +50,7 @@ export declare class AccountsService {
             subtype: string | null;
             description: string | null;
             parentId: string | null;
+            isSystemAccount: boolean;
         } | null;
         children: {
             name: string;
@@ -62,6 +65,7 @@ export declare class AccountsService {
             subtype: string | null;
             description: string | null;
             parentId: string | null;
+            isSystemAccount: boolean;
         }[];
     } & {
         name: string;
@@ -76,6 +80,7 @@ export declare class AccountsService {
         subtype: string | null;
         description: string | null;
         parentId: string | null;
+        isSystemAccount: boolean;
     }>;
     create(organizationId: string, data: {
         code: string;
@@ -97,6 +102,7 @@ export declare class AccountsService {
         subtype: string | null;
         description: string | null;
         parentId: string | null;
+        isSystemAccount: boolean;
     }>;
     update(id: string, organizationId: string, data: Partial<{
         name: string;
@@ -115,6 +121,7 @@ export declare class AccountsService {
         subtype: string | null;
         description: string | null;
         parentId: string | null;
+        isSystemAccount: boolean;
     }>;
     getTrialBalance(organizationId: string, asOf: Date): Promise<{
         account: {

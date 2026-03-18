@@ -16,7 +16,10 @@ exports.PayrollController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
+const permissions_guard_1 = require("../../common/guards/permissions.guard");
+const require_permission_decorator_1 = require("../../common/decorators/require-permission.decorator");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
+const permissions_1 = require("../../common/permissions");
 const payroll_service_1 = require("./payroll.service");
 let PayrollController = class PayrollController {
     payroll;
@@ -27,7 +30,12 @@ let PayrollController = class PayrollController {
         return this.payroll.findAll(user.organizationId, page);
     }
     create(user, body) {
-        return this.payroll.create(user.organizationId, { ...body, startDate: new Date(body.startDate), endDate: new Date(body.endDate), payDate: new Date(body.payDate) });
+        return this.payroll.create(user.organizationId, {
+            ...body,
+            startDate: new Date(body.startDate),
+            endDate: new Date(body.endDate),
+            payDate: new Date(body.payDate),
+        });
     }
     process(id, user) {
         return this.payroll.process(id, user.organizationId);
@@ -44,6 +52,7 @@ __decorate([
 ], PayrollController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, require_permission_decorator_1.RequirePermission)(permissions_1.PERMISSIONS.PAYROLL, 'full'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -52,6 +61,7 @@ __decorate([
 ], PayrollController.prototype, "create", null);
 __decorate([
     (0, common_1.Patch)(':id/process'),
+    (0, require_permission_decorator_1.RequirePermission)(permissions_1.PERMISSIONS.PAYROLL, 'full'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
@@ -61,7 +71,8 @@ __decorate([
 exports.PayrollController = PayrollController = __decorate([
     (0, swagger_1.ApiTags)('hr/payroll'),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, permissions_guard_1.PermissionsGuard),
+    (0, require_permission_decorator_1.RequirePermission)(permissions_1.PERMISSIONS.PAYROLL, 'read'),
     (0, common_1.Controller)('hr/payroll'),
     __metadata("design:paramtypes", [payroll_service_1.PayrollService])
 ], PayrollController);

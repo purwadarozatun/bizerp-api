@@ -6,10 +6,11 @@ import { PrismaClient } from '@bis/database';
   providers: [
     {
       provide: PrismaClient,
-      useFactory: () => {
+      useFactory: async () => {
         const prisma = new PrismaClient({
           log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
         });
+        await prisma.$connect();
         return prisma;
       },
     },

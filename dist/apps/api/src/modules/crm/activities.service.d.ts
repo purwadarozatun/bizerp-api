@@ -30,8 +30,8 @@ export declare class ActivitiesService {
             description: string | null;
             contactId: string;
             dueDate: Date | null;
-            subject: string;
             completedAt: Date | null;
+            subject: string;
         })[];
         total: number;
         page: number;
@@ -65,8 +65,8 @@ export declare class ActivitiesService {
         description: string | null;
         contactId: string;
         dueDate: Date | null;
-        subject: string;
         completedAt: Date | null;
+        subject: string;
     }>;
     create(data: {
         contactId: string;
@@ -101,8 +101,8 @@ export declare class ActivitiesService {
         description: string | null;
         contactId: string;
         dueDate: Date | null;
-        subject: string;
         completedAt: Date | null;
+        subject: string;
     }>;
     complete(id: string): Promise<{
         id: string;
@@ -112,8 +112,8 @@ export declare class ActivitiesService {
         description: string | null;
         contactId: string;
         dueDate: Date | null;
-        subject: string;
         completedAt: Date | null;
+        subject: string;
     }>;
     update(id: string, data: Partial<{
         type: string;
@@ -128,8 +128,8 @@ export declare class ActivitiesService {
         description: string | null;
         contactId: string;
         dueDate: Date | null;
-        subject: string;
         completedAt: Date | null;
+        subject: string;
     }>;
     getTimeline(contactId: string): Promise<({
         type: string;
@@ -142,8 +142,8 @@ export declare class ActivitiesService {
             description: string | null;
             contactId: string;
             dueDate: Date | null;
-            subject: string;
             completedAt: Date | null;
+            subject: string;
         };
     } | {
         type: string;
@@ -153,10 +153,10 @@ export declare class ActivitiesService {
             createdAt: Date;
             updatedAt: Date;
             status: string;
+            source: string | null;
             contactId: string;
             notes: string | null;
             title: string;
-            source: string | null;
             value: import("@prisma/client/runtime/library").Decimal | null;
         };
     } | {

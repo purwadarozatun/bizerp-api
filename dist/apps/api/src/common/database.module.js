@@ -18,10 +18,11 @@ exports.DatabaseModule = DatabaseModule = __decorate([
         providers: [
             {
                 provide: database_1.PrismaClient,
-                useFactory: () => {
+                useFactory: async () => {
                     const prisma = new database_1.PrismaClient({
                         log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
                     });
+                    await prisma.$connect();
                     return prisma;
                 },
             },

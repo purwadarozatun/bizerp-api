@@ -1,14 +1,18 @@
-import { Controller, Get, Param, Query, Res, UseGuards, Header } from '@nestjs/common';
+import { Controller, Get, Param, Res, UseGuards, Header } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Response } from 'express';
 
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
+import { RequirePermission } from '../../common/decorators/require-permission.decorator';
 import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
+import { PERMISSIONS } from '../../common/permissions';
 import { PaystubService } from './paystub.service';
 
 @ApiTags('hr/paystubs')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermission(PERMISSIONS.PAYROLL, 'read')
 @Controller('hr/paystubs')
 export class PaystubController {
   constructor(private readonly paystubs: PaystubService) {}
@@ -21,7 +25,11 @@ export class PaystubController {
 
   @Get(':payrollId/employee/:employeeId')
   @ApiOperation({ summary: 'Get pay stub data' })
-  getPaystub(@Param('payrollId') payrollId: string, @Param('employeeId') employeeId: string, @CurrentUser() user: JwtPayload) {
+  getPaystub(
+    @Param('payrollId') payrollId: string,
+    @Param('employeeId') employeeId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
     return this.paystubs.getPaystub(payrollId, employeeId, user.organizationId);
   }
 

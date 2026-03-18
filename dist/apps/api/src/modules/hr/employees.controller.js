@@ -16,7 +16,10 @@ exports.EmployeesController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
+const permissions_guard_1 = require("../../common/guards/permissions.guard");
+const require_permission_decorator_1 = require("../../common/decorators/require-permission.decorator");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
+const permissions_1 = require("../../common/permissions");
 const employees_service_1 = require("./employees.service");
 let EmployeesController = class EmployeesController {
     employees;
@@ -73,6 +76,7 @@ __decorate([
 ], EmployeesController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, require_permission_decorator_1.RequirePermission)(permissions_1.PERMISSIONS.EMPLOYEE_DATA, 'full'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -81,6 +85,7 @@ __decorate([
 ], EmployeesController.prototype, "create", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, require_permission_decorator_1.RequirePermission)(permissions_1.PERMISSIONS.EMPLOYEE_DATA, 'full'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __param(2, (0, common_1.Body)()),
@@ -91,7 +96,8 @@ __decorate([
 exports.EmployeesController = EmployeesController = __decorate([
     (0, swagger_1.ApiTags)('hr/employees'),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, permissions_guard_1.PermissionsGuard),
+    (0, require_permission_decorator_1.RequirePermission)(permissions_1.PERMISSIONS.EMPLOYEE_DATA, 'read'),
     (0, common_1.Controller)('hr/employees'),
     __metadata("design:paramtypes", [employees_service_1.EmployeesService])
 ], EmployeesController);

@@ -77,6 +77,7 @@ let EmailService = class EmailService {
             subject: options.subject,
             text: options.text,
             html: options.html,
+            attachments: options.attachments,
         });
         return { messageId: info.messageId, accepted: info.accepted, rejected: info.rejected };
     }

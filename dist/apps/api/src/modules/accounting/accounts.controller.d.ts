@@ -4,7 +4,8 @@ export declare class AccountsController {
     private readonly accounts;
     constructor(accounts: AccountsService);
     findAll(user: JwtPayload): Promise<{
-        data: ({
+        data: {
+            balance: number;
             children: {
                 name: string;
                 id: string;
@@ -18,8 +19,8 @@ export declare class AccountsController {
                 subtype: string | null;
                 description: string | null;
                 parentId: string | null;
+                isSystemAccount: boolean;
             }[];
-        } & {
             name: string;
             id: string;
             currency: string;
@@ -32,7 +33,8 @@ export declare class AccountsController {
             subtype: string | null;
             description: string | null;
             parentId: string | null;
-        })[];
+            isSystemAccount: boolean;
+        }[];
         total: number;
     }>;
     trialBalance(user: JwtPayload, asOf?: string): Promise<{
@@ -59,6 +61,7 @@ export declare class AccountsController {
             subtype: string | null;
             description: string | null;
             parentId: string | null;
+            isSystemAccount: boolean;
         } | null;
         children: {
             name: string;
@@ -73,6 +76,7 @@ export declare class AccountsController {
             subtype: string | null;
             description: string | null;
             parentId: string | null;
+            isSystemAccount: boolean;
         }[];
     } & {
         name: string;
@@ -87,6 +91,7 @@ export declare class AccountsController {
         subtype: string | null;
         description: string | null;
         parentId: string | null;
+        isSystemAccount: boolean;
     }>;
     create(user: JwtPayload, body: {
         code: string;
@@ -108,6 +113,7 @@ export declare class AccountsController {
         subtype: string | null;
         description: string | null;
         parentId: string | null;
+        isSystemAccount: boolean;
     }>;
     update(id: string, user: JwtPayload, body: {
         name?: string;
@@ -126,6 +132,7 @@ export declare class AccountsController {
         subtype: string | null;
         description: string | null;
         parentId: string | null;
+        isSystemAccount: boolean;
     }>;
 }
 //# sourceMappingURL=accounts.controller.d.ts.map

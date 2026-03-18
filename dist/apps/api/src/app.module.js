@@ -23,7 +23,7 @@ exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            config_1.ConfigModule.forRoot({ isGlobal: true }),
+            config_1.ConfigModule.forRoot({ isGlobal: true, envFilePath: ['../../.env', '.env'] }),
             throttler_1.ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
             database_module_1.DatabaseModule,
             auth_module_1.AuthModule,
